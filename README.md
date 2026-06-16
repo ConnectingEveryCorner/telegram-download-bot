@@ -2,7 +2,7 @@
 
 English | [中文说明](README.zh.md)
 
-telegram-download-bot is a Telegram MTProto download-and-send-back bot. Send a Telegram message link to the bot, and it will download the original message content with a logged-in Telegram user account, then send text, photos, videos, documents, or albums back through the bot.
+telegram-download-bot is a Telegram MTProto download-and-send-back bot built on top of [tdl](https://github.com/iyear/tdl). Send a Telegram message link to the bot, and it will download the original message content with a logged-in Telegram user account, then send text, photos, videos, documents, or albums back through the bot.
 
 ## Features
 
