@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: "镜像标签"
+        description: "Image tag"
         required: true
         default: "latest"
 
