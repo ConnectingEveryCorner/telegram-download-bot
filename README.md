@@ -1,48 +1,99 @@
-# tdl
+# telegram-download-bot
 
-<img align="right" src="docs/assets/img/logo.png" height="280" alt="">
+English | [中文说明](README.zh.md)
 
-> 📥 Telegram Downloader, but more than a downloader
+telegram-download-bot is a Telegram MTProto download-and-send-back bot. Send a Telegram message link to the bot, and it will download the original message content with a logged-in Telegram user account, then send text, photos, videos, documents, or albums back through the bot.
 
-English | <a href="README_zh.md">简体中文</a>
+## Features
 
-<p>
-<img src="https://img.shields.io/github/go-mod/go-version/iyear/tdl?style=flat-square" alt="">
-<img src="https://img.shields.io/github/license/iyear/tdl?style=flat-square" alt="">
-<img src="https://img.shields.io/github/actions/workflow/status/iyear/tdl/master.yml?branch=master&amp;style=flat-square" alt="">
-<img src="https://img.shields.io/github/v/release/iyear/tdl?color=red&amp;style=flat-square" alt="">
-<img src="https://img.shields.io/github/downloads/iyear/tdl/total?style=flat-square" alt="">
-</p>
+- Receive Telegram message links through a Telegram Bot
+- Download message content with a logged-in MTProto user account
+- Send text, photos, videos, documents, and albums back through the bot
+- Login to a Telegram user account inside the bot flow
+- Admin-only authorization management
+- Fixed bot language from config, currently English and Chinese
 
-#### Features:
-- Single file start-up
-- Low resource usage
-- Take up all your bandwidth
-- Faster than official clients
-- Download files from (protected) chats
-- Forward messages with automatic fallback and message routing
-- Upload files to Telegram
-- Export messages/members/subscribers to JSON
+## Configuration
 
-## Preview
+Copy the example config first:
 
-It reaches my proxy's speed limit, and the **speed depends on whether you are a premium**
+```bash
+cp config.example.yaml config.yaml
+```
 
-![](docs/assets/img/preview.gif)
+Then edit `config.yaml`:
 
-## Documentation
+```yaml
+bot:
+  token: "YOUR_TELEGRAM_BOT_TOKEN"
+  debug: false
+  language: "en"
 
-Please refer to the [documentation](https://docs.iyear.me/tdl/).
+telegram:
+  app-id: 123456
+  app-hash: "YOUR_TELEGRAM_APP_HASH"
 
-## Sponsors
+auth:
+  admin-chat-id: 123456789
+  allowed-chat-ids: []
 
-![](https://raw.githubusercontent.com/iyear/sponsor/master/sponsors.svg)
+tdl:
+  proxy: ""
+  ntp: ""
+  reconnect-timeout: "5m"
+  threads: 4
+  limit: 2
+  pool: 8
+  delay: "0s"
+```
 
-## Contributors
-<a href="https://github.com/iyear/tdl/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=iyear/tdl&max=750&columns=20" alt="contributors"/>
-</a>
+Important fields:
 
-## LICENSE
+- `bot.token`: Bot token from BotFather
+- `bot.language`: required bot language, only `en` and `zh` are supported
+- `telegram.app-id` and `telegram.app-hash`: Telegram API credentials
+- `auth.admin-chat-id`: the primary admin chat id
+- `auth.allowed-chat-ids`: regular users allowed to use the bot
+- `tdl.proxy`: optional proxy, for example `socks5://127.0.0.1:7890`
 
-AGPL-3.0 License
+The language is global and fixed by config. Users cannot choose or switch language in chat. If `bot.language` is `en`, all bot prompts use English; if it is `zh`, all bot prompts use Chinese.
+
+## Docker Compose Deployment
+
+Prepare config:
+
+```bash
+cp config.example.yaml config.yaml
+```
+
+Start the bot:
+
+```bash
+docker compose up -d
+```
+
+## Bot Commands
+
+- `/start`: show help
+- `/help`: show help
+- `/myid`: show current chat id
+- `/login`: start Telegram account login
+- `/login +4475834875`: start login with a phone number
+- `/status`: check login status
+- `/logout`: clear the current account session
+- `/cancel`: cancel the current login flow
+- `/grant <chat_id>`: primary admin authorizes a user
+- `/revoke <chat_id>`: primary admin revokes a user
+- `/users`: primary admin views authorization status
+
+After login, send a Telegram message link directly to download and send it back.
+
+## Contact 💬
+
+- 🤖 Bot: [@ConnectingEveryCornerBot](https://t.me/ConnectingEveryCornerBot)
+- 👤 Telegram: [@ConnectingEveryCorner](https://t.me/ConnectingEveryCorner)
+- 📢 Channel: [CECBoard](https://t.me/CECBoard)
+
+## License
+
+This project is licensed under AGPL-3.0. The full AGPL-3.0 license text is archived at `licenses/LICENSE.upstream-AGPL-3.0.txt`. Read the current `LICENSE` file for project license notes.

@@ -1,0 +1,21 @@
+bot:
+  token: "YOUR_TELEGRAM_BOT_TOKEN"
+  debug: false
+  language: "en"
+
+telegram:
+  app-id: 123456
+  app-hash: "YOUR_TELEGRAM_APP_HASH"
+
+auth:
+  admin-chat-id: 123456789
+  allowed-chat-ids: []
+
+tdl:
+  proxy: ""
+  ntp: ""
+  reconnect-timeout: "5m"
+  threads: 4
+  limit: 2
+  pool: 8
+  delay: "0s"

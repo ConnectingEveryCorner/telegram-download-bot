@@ -1,31 +1,38 @@
-# https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
-FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
+# syntax=docker/dockerfile:1.7
+
+FROM golang:1.25-alpine
 
 ARG VERSION="dev"
 ARG COMMIT="unknown"
 ARG COMMIT_DATE="unknown"
-
-WORKDIR /
-
-COPY . .
-
 ARG TARGETOS
 ARG TARGETARCH
 
+RUN apk add --no-cache ca-certificates tzdata
+
+WORKDIR /src
+
+COPY go.mod go.sum go.work go.work.sum ./
+COPY core ./core
+COPY extension ./extension
+COPY app ./app
+COPY cmd ./cmd
+COPY pkg ./pkg
+COPY main.go ./
+
 RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg \
-    GOOS=$TARGETOS GOARCH=$TARGETARCH \
-    go build -trimpath \
-    -ldflags "-s -w  \
-    -X github.com/iyear/tdl/pkg/consts.Version=${VERSION}  \
-    -X github.com/iyear/tdl/pkg/consts.Commit=${COMMIT}  \
+    --mount=type=cache,target=/go/pkg/mod \
+    GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 GOMAXPROCS=2 \
+    go build -p=1 -trimpath \
+    -ldflags "-s -w \
+    -X github.com/iyear/tdl/pkg/consts.Version=${VERSION} \
+    -X github.com/iyear/tdl/pkg/consts.Commit=${COMMIT} \
     -X github.com/iyear/tdl/pkg/consts.CommitDate=${COMMIT_DATE}" \
-    -o tdl
+    -o /usr/local/bin/telegram-download-bot .
 
-FROM alpine:latest
+WORKDIR /app
+ENV HOME=/data
 
-RUN apk add --no-cache ca-certificates
+VOLUME ["/data"]
 
-COPY --from=builder /tdl /usr/bin/tdl
-
-ENTRYPOINT ["tdl"]
+ENTRYPOINT ["telegram-download-bot"]

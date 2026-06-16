@@ -1,0 +1,10 @@
+name: telegram-download-bot
+
+services:
+  telegram-download-bot:
+    image: ghcr.io/connectingeverycorner/telegram-download-bot:latest
+    container_name: telegram-download-bot
+    restart: always
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/data

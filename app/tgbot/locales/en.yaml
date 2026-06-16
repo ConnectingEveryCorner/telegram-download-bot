@@ -1,0 +1,69 @@
+handle_failed: "Failed to handle message: %s"
+my_id: "Your chat id: %d"
+login_cancelled: "Current login flow has been cancelled"
+login_not_active: "There is no active login flow"
+logout_failed: "Failed to log out: %s"
+logout_success: "The current account session has been cleared"
+status_failed: "Failed to check login status: %s"
+status_logged_in: "The current account is logged in, you can send a Telegram message link directly"
+status_not_logged_in: "The current account is not logged in yet, send /login +4475834875 or /login first"
+unsupported_input: |-
+  I currently support two kinds of input:
+  1. /login to start account login
+  2. Send a Telegram message link directly so I can download and send it back
+download_busy: "Another task is still running, please send the next link after it finishes"
+grant_usage: "Usage: /grant <chat_id>"
+config_write_failed: "Failed to write config.yaml: %s"
+granted: "Authorized chat id %d to use the bot"
+revoke_usage: "Usage: /revoke <chat_id>"
+config_read_failed: "Failed to read config.yaml: %s"
+revoke_admin_denied: "Cannot revoke the primary admin, edit auth.admin-chat-id in config.yaml if needed"
+revoked: "Revoked access for chat id %d"
+login_already_active: "A login flow is already in progress, send /cancel to cancel it"
+login_start: "Starting account login"
+login_failed: "Login failed: %s"
+login_success: "Login succeeded You can now send me a channel or group message link, and I will download it and send it back through the bot"
+account_not_logged_in: "The current account is not logged in yet, please send /login first"
+process_start: "Starting link processing, I will download with the account first and then send it back through the bot"
+no_files: "Download finished, but no file was found to send back"
+files_found: "Downloaded %d files, starting to send them back"
+missing_downloaded_file: "Cannot find the downloaded file for message %d"
+phone_prompt: "Please send your phone number, for example +4475834875"
+password_prompt: "This account has two-step verification enabled, please send me the 2FA password"
+signup_unsupported: "This flow does not support registering a Telegram account, only logging in to an existing account"
+code_sent: "The code has been sent to your Telegram / SMS device, please send me the code"
+code_waiting: "Waiting for the code"
+admin_not_configured: "auth.admin-chat-id is not set in config.yaml, please set the primary admin chat id first"
+unauthorized: "You are not authorized to use this bot Your chat id is %d, please ask the primary admin to run /grant %d"
+admin_required: "Only the primary admin can run this command"
+start: |-
+  /myid
+  Show your chat id so an admin can authorize you
+
+  /login
+  Start Telegram account login
+
+  /login +4475834875
+  Start login with a phone number directly
+
+  /status
+  Check whether the current account is logged in
+
+  /logout
+  Clear the account session bound to this bot chat
+
+  /cancel
+  Cancel the current login flow
+
+  /grant <chat_id>
+  Primary admin authorizes a chat id to use the bot
+
+  /revoke <chat_id>
+  Primary admin revokes a chat id's access
+
+  /users
+  Primary admin views the current authorization status
+
+  After login, send me a Telegram message link directly, for example:
+  https://t.me/telegram/193
+help: "https://github.com/ConnectingEveryCorner/telegram-download-bot"

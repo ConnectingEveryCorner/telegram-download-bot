@@ -1,0 +1,17 @@
+.git
+.github
+.idea
+.vscode
+.tdl
+data
+downloads
+log
+config.yaml
+*.backup
+*.log
+*.tmp
+tdl
+telegram-download-bot
+docs/public
+docs/resources/_gen
+.DS_Store

@@ -9,11 +9,11 @@ import (
 func New(level zapcore.LevelEnabler, path string) *zap.Logger {
 	rotate := &lumberjack.Logger{
 		Filename:   path,
-		MaxSize:    10,
+		MaxSize:    1,
 		MaxAge:     7,
-		MaxBackups: 3,
+		MaxBackups: 0,
 		LocalTime:  true,
-		Compress:   true,
+		Compress:   false,
 	}
 
 	writer := zapcore.AddSync(rotate)

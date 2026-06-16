@@ -1,0 +1,69 @@
+handle_failed: "处理失败: %s"
+my_id: "你的 chat id: %d"
+login_cancelled: "已取消当前登录流程"
+login_not_active: "当前没有进行中的登录流程"
+logout_failed: "退出登录失败: %s"
+logout_success: "当前账号会话已清除"
+status_failed: "检查登录状态失败: %s"
+status_logged_in: "当前账号已登录，可以直接发送 Telegram 消息链接"
+status_not_logged_in: "当前还没有登录账号，先发送 /login +4475834875 或 /login"
+unsupported_input: |-
+  我现在支持两类输入:
+  1. /login 开始登录账号
+  2. 直接发送 Telegram 消息链接让我下载并回传
+download_busy: "当前还有任务在处理中，等这一条完成后再发下一个链接"
+grant_usage: "用法: /grant <chat_id>"
+config_write_failed: "写入 config.yaml 失败: %s"
+granted: "已授权 chat id %d 使用机器人"
+revoke_usage: "用法: /revoke <chat_id>"
+config_read_failed: "读取 config.yaml 失败: %s"
+revoke_admin_denied: "不能撤销主管理员 需要的话请直接改 config.yaml 里的 auth.admin-chat-id"
+revoked: "已取消 chat id %d 的使用权限"
+login_already_active: "已经有一个登录流程在进行中，发送 /cancel 可以取消"
+login_start: "开始登录账号"
+login_failed: "登录失败: %s"
+login_success: "登录成功 现在你可以直接给我发频道/群组的消息链接，我会下载后再用机器人发回给你"
+account_not_logged_in: "当前账号还没有登录，请先发送 /login"
+process_start: "开始处理链接，先用账号下载，再由机器人回传给你"
+no_files: "下载完成了，但没有找到可回传的文件"
+files_found: "一共下载到了 %d 个文件，开始回传"
+missing_downloaded_file: "找不到消息 %d 对应的下载文件"
+phone_prompt: "请发送手机号，例如 +4475834875"
+password_prompt: "这个账号开启了两步验证，请把 2FA 密码发给我"
+signup_unsupported: "当前流程不支持注册 Telegram 账号，只支持登录已有账号"
+code_sent: "验证码已经发送到你的 Telegram / 短信设备，请把验证码发给我"
+code_waiting: "等待验证码中"
+admin_not_configured: "config.yaml 里还没有设置 auth.admin-chat-id，先补上主管理员 chat id"
+unauthorized: "你当前还没有被授权使用这个机器人 你的 chat id 是 %d，请让主管理员执行 /grant %d"
+admin_required: "只有主管理员可以执行这个命令"
+start: |-
+  /myid
+  查看你自己的 chat id，方便让管理员授权
+
+  /login
+  开始登录 Telegram 账号
+
+  /login +4475834875
+  直接带手机号开始登录
+
+  /status
+  查看当前账号是否已登录
+
+  /logout
+  清除当前 bot 会话绑定的账号登录信息
+
+  /cancel
+  取消当前登录流程
+
+  /grant <chat_id>
+  主管理员授权某个 chat id 使用机器人
+
+  /revoke <chat_id>
+  主管理员取消某个 chat id 的使用权限
+
+  /users
+  主管理员查看当前所有授权状态
+
+  登录后，直接给我发 Telegram 消息链接，例如:
+  https://t.me/telegram/193
+help: "https://github.com/ConnectingEveryCorner/telegram-download-bot"
