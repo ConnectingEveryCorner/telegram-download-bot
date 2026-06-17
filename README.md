@@ -56,15 +56,20 @@ Important fields:
 - `auth.allowed-chat-ids`: regular users allowed to use the bot
 - `tdl.proxy`: optional proxy, for example `socks5://127.0.0.1:7890`
 
+How to get `telegram.app-id` and `telegram.app-hash`:
+
+1. Open [my.telegram.org](https://my.telegram.org/) and log in with your Telegram phone number.
+2. Go to **API development tools**.
+3. Create an application if you do not already have one.
+4. Copy the displayed `api_id` into `telegram.app-id` and `api_hash` into `telegram.app-hash`.
+
 The language is global and fixed by config. Users cannot choose or switch language in chat. If `bot.language` is `en`, all bot prompts use English; if it is `zh`, all bot prompts use Chinese.
 
 ## Docker Compose Deployment
 
-Prepare config:
+Download `docker-compose.yml` and `config.example.yaml` from this repository, then place them in the same deployment directory.
 
-```bash
-cp config.example.yaml config.yaml
-```
+Copy `config.example.yaml` to `config.yaml`, then edit `config.yaml` with your bot token, Telegram API credentials, and admin chat id.
 
 Start the bot:
 

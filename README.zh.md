@@ -56,15 +56,20 @@ tdl:
 - `auth.allowed-chat-ids`：允许使用机器人的普通用户
 - `tdl.proxy`：可选代理，例如 `socks5://127.0.0.1:7890`
 
+如何获取 `telegram.app-id` 和 `telegram.app-hash`：
+
+1. 打开 [my.telegram.org](https://my.telegram.org/) 并使用 Telegram 手机号登录
+2. 进入 **API development tools**
+3. 如果还没有应用，先创建一个应用
+4. 把页面显示的 `api_id` 填到 `telegram.app-id`，把 `api_hash` 填到 `telegram.app-hash`
+
 语言是全局配置，用户不能在聊天里选择或切换语言 如果 `bot.language` 是 `en`，机器人提示使用英文 如果是 `zh`，机器人提示使用中文
 
 ## Docker Compose 部署
 
-准备配置：
+从本仓库手动下载 `docker-compose.yml` 和 `config.example.yaml`，并把它们放到同一个部署目录
 
-```bash
-cp config.example.yaml config.yaml
-```
+复制 `config.example.yaml` 为 `config.yaml`，然后在 `config.yaml` 中填写 Bot Token、Telegram API 凭据和管理员 chat id
 
 启动机器人：
 

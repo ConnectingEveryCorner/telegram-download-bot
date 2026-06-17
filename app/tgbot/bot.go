@@ -225,6 +225,9 @@ func (b *Bot) runAuthorizedBot(ctx context.Context, client *telegram.Client) err
 	raw := tg.NewClient(client)
 	b.setRawClient(raw)
 	b.setSender(message.NewSender(raw))
+	if err := b.setBotCommands(ctx, raw); err != nil {
+		return errors.Wrap(err, "set bot commands")
+	}
 	b.logger.Info("MTProto bot started",
 		zap.Int64("bot_id", self.ID),
 		zap.String("username", self.Username),
@@ -232,6 +235,42 @@ func (b *Bot) runAuthorizedBot(ctx context.Context, client *telegram.Client) err
 
 	<-ctx.Done()
 	return ctx.Err()
+}
+
+func (b *Bot) setBotCommands(ctx context.Context, raw *tg.Client) error {
+	sets := []struct {
+		langCode string
+		commands []tg.BotCommand
+	}{
+		{langCode: "", commands: botCommandsForLang(b.i18n.lang)},
+	}
+	for _, set := range sets {
+		ok, err := raw.BotsSetBotCommands(ctx, &tg.BotsSetBotCommandsRequest{
+			Scope:    &tg.BotCommandScopeDefault{},
+			LangCode: set.langCode,
+			Commands: set.commands,
+		})
+		if err != nil {
+			return errors.Wrapf(err, "set bot commands for lang %q", set.langCode)
+		}
+		if !ok {
+			return errors.Errorf("set bot commands returned false for lang %q", set.langCode)
+		}
+	}
+	return nil
+}
+
+func botCommandsForLang(lang string) []tg.BotCommand {
+	if lang == "zh" {
+		return []tg.BotCommand{
+			{Command: "start", Description: "显示帮助"},
+			{Command: "help", Description: "打开项目帮助"},
+		}
+	}
+	return []tg.BotCommand{
+		{Command: "start", Description: "Show help"},
+		{Command: "help", Description: "Open project help"},
+	}
 }
 
 func setBotDefaults() {
