@@ -4,6 +4,8 @@
 
 telegram-download-bot 是一个基于 [tdl](https://github.com/iyear/tdl) 实现的 Telegram MTProto 下载回传机器人 用户把 Telegram 消息链接发给机器人后，机器人会使用已登录的 Telegram 用户账号下载原消息内容，再通过机器人把文本、图片、视频、文件或相册回传给当前聊天
 
+![Usage demo](./docs/images/demo.gif)
+
 ## 功能
 
 - 通过 Telegram Bot 接收 Telegram 消息链接
