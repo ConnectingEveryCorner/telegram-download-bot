@@ -69,6 +69,8 @@ tdl:
 
 ## Docker Compose 部署
 
+https://youtu.be/3rKaZDRmR5Q?si=rX-s2s5y2Ay-4ENg
+
 从本仓库手动下载 `docker-compose.yml` 和 `config.example.yaml`，并把它们放到同一个部署目录
 
 复制 `config.example.yaml` 为 `config.yaml`，然后在 `config.yaml` 中填写 Bot Token、Telegram API 凭据和管理员 chat id
