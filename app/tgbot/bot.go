@@ -36,7 +36,10 @@ import (
 	"github.com/iyear/tdl/pkg/tclient"
 )
 
-const botNamespace = "bot-controller"
+const (
+	botNamespace        = "bot-controller"
+	botAccountNamespace = "bot-account"
+)
 
 const botRestartDelay = 10 * time.Second
 
@@ -365,7 +368,7 @@ func (b *Bot) handleMessage(ctx context.Context, sess *session, chatID int64, te
 	case "/users":
 		return b.handleUsers(ctx, sess, chatID)
 	case "/login":
-		if err := b.requireAuthorized(chatID); err != nil {
+		if err := b.requireAdmin(chatID); err != nil {
 			return b.sendText(ctx, sess, err.Error())
 		}
 		return b.startLogin(ctx, sess, chatID, strings.TrimSpace(arg))
@@ -378,10 +381,10 @@ func (b *Bot) handleMessage(ctx context.Context, sess *session, chatID int64, te
 		}
 		return b.sendText(ctx, sess, b.tr("login_not_active"))
 	case "/logout":
-		if err := b.requireAuthorized(chatID); err != nil {
+		if err := b.requireAdmin(chatID); err != nil {
 			return b.sendText(ctx, sess, err.Error())
 		}
-		if err := b.logout(ctx, chatID); err != nil {
+		if err := b.logout(ctx); err != nil {
 			return b.sendText(ctx, sess, b.tr("logout_failed", err.Error()))
 		}
 		return b.sendText(ctx, sess, b.tr("logout_success"))
@@ -389,7 +392,7 @@ func (b *Bot) handleMessage(ctx context.Context, sess *session, chatID int64, te
 		if err := b.requireAuthorized(chatID); err != nil {
 			return b.sendText(ctx, sess, err.Error())
 		}
-		ok, err := b.isAuthorized(ctx, chatID)
+		ok, err := b.isAuthorized(ctx)
 		switch {
 		case err != nil:
 			return b.sendText(ctx, sess, b.tr("status_failed", err.Error()))
@@ -514,7 +517,7 @@ func (b *Bot) startLogin(ctx context.Context, sess *session, chatID int64, phone
 }
 
 func (b *Bot) loginAccount(ctx context.Context, chatID int64, phone string) error {
-	kvd, err := b.kv.Open(b.getSession(chatID).namespace)
+	kvd, err := b.kv.Open(botAccountNamespace)
 	if err != nil {
 		return errors.Wrap(err, "open namespace")
 	}
@@ -544,8 +547,8 @@ func (b *Bot) loginAccount(ctx context.Context, chatID int64, phone string) erro
 	})
 }
 
-func (b *Bot) logout(ctx context.Context, chatID int64) error {
-	kvd, err := b.kv.Open(b.getSession(chatID).namespace)
+func (b *Bot) logout(ctx context.Context) error {
+	kvd, err := b.kv.Open(botAccountNamespace)
 	if err != nil {
 		return errors.Wrap(err, "open namespace")
 	}
@@ -559,8 +562,8 @@ func (b *Bot) logout(ctx context.Context, chatID int64) error {
 	return nil
 }
 
-func (b *Bot) isAuthorized(ctx context.Context, chatID int64) (bool, error) {
-	kvd, err := b.kv.Open(b.getSession(chatID).namespace)
+func (b *Bot) isAuthorized(ctx context.Context) (bool, error) {
+	kvd, err := b.kv.Open(botAccountNamespace)
 	if err != nil {
 		return false, errors.Wrap(err, "open namespace")
 	}
@@ -591,7 +594,7 @@ func (b *Bot) processLink(ctx context.Context, sess *session, chatID int64, link
 		zap.String("link", link),
 	)
 
-	ok, err := b.isAuthorized(ctx, chatID)
+	ok, err := b.isAuthorized(ctx)
 	if err != nil {
 		return err
 	}
@@ -603,7 +606,7 @@ func (b *Bot) processLink(ctx context.Context, sess *session, chatID int64, link
 		return err
 	}
 
-	kvd, err := b.kv.Open(b.getSession(chatID).namespace)
+	kvd, err := b.kv.Open(botAccountNamespace)
 	if err != nil {
 		return errors.Wrap(err, "open namespace")
 	}

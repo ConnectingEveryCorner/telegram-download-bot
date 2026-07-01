@@ -84,8 +84,8 @@ docker compose up -d
 - `/start`: show help
 - `/help`: show help
 - `/myid`: show current chat id
-- `/login`: start Telegram account login
-- `/login +4475834875`: start login with a phone number
+- `/login`: primary admin logs in the shared Telegram account
+- `/login +4475834875`: primary admin logs in the shared account with a phone number
 - `/status`: check login status
 - `/logout`: clear the current account session
 - `/cancel`: cancel the current login flow
@@ -94,6 +94,8 @@ docker compose up -d
 - `/users`: primary admin views authorization status
 
 After login, send a Telegram message link directly to download and send it back.
+
+Only the primary admin configured by `auth.admin-chat-id` can run `/login`. Once logged in, all authorized bot users share the same Telegram account session and do not need to log in separately.
 
 ## Contact 💬
 

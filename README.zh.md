@@ -86,8 +86,10 @@ docker compose up -d
 - `/start`：显示帮助
 - `/help`：显示帮助
 - `/myid`：显示当前 chat id
-- `/login`：开始登录 Telegram 账号
-- `/login +4475834875`：直接带手机号开始登录
+- `/login`：主管理员登录共享的 Telegram 账号
+- `/login +4475834875`：主管理员直接带手机号登录共享账号
+
+`/login` 仅允许 `auth.admin-chat-id` 配置的主管理员执行。登录成功后，所有已授权的机器人用户共享该 Telegram 登录状态，无需分别登录
 - `/status`：检查登录状态
 - `/logout`：清除当前账号会话
 - `/cancel`：取消当前登录流程
