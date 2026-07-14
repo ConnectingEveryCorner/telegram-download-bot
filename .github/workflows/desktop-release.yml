@@ -148,7 +148,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           go mod download fyne.io/tools@v1.7.2
           $toolsDir = Join-Path (go env GOMODCACHE) 'fyne.io\tools@v1.7.2'
-          Get-ChildItem -Path $toolsDir -Recurse -Force | ForEach-Object { $_.IsReadOnly = $false }
+          Get-ChildItem -Path $toolsDir -File -Recurse -Force | ForEach-Object { $_.IsReadOnly = $false }
           $buildFile = Join-Path $toolsDir 'cmd\fyne\internal\commands\build.go'
           $source = Get-Content -Path $buildFile -Raw
           $unsupportedFlag = 'cflags = append(cflags, "-mbranch-protection=bti+pac-ret")'
