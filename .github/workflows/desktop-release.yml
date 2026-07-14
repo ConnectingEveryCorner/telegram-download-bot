@@ -95,41 +95,22 @@ jobs:
           path: dist/telegram-download-bot-desktop-macos-${{ matrix.arch }}.zip
           if-no-files-found: error
 
-  windows:
-    name: Windows ${{ matrix.arch }} package
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: windows-2022
-            arch: amd64
-            compiler_path: 'C:\msys64\mingw64\bin'
-            cc: 'C:\msys64\mingw64\bin\gcc.exe'
-            cgo_cflags: ''
-          - runner: windows-11-arm
-            arch: arm64
-            compiler_path: 'C:\msys64\clangarm64\bin'
-            # The system clang links with lld-link and cannot locate the
-            # MSYS2 MinGW ARM64 libraries. Use MSYS2's clang driver directly.
-            cc: 'C:\msys64\clangarm64\bin\clang.exe'
-            cgo_cflags: -DWINBOOL=BOOL
-    runs-on: ${{ matrix.runner }}
+  windows-amd64:
+    name: Windows amd64 package
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
-      - name: Enable native C compiler
-        shell: pwsh
-        run: Add-Content $env:GITHUB_PATH '${{ matrix.compiler_path }}'
       - name: Package
         shell: pwsh
         env:
           TAG_NAME: ${{ inputs.tag_name }}
-          ARCH: ${{ matrix.arch }}
-          CC: ${{ matrix.cc }}
-          CGO_CFLAGS: ${{ matrix.cgo_cflags }}
+          ARCH: amd64
+          # This is the compiler that has already succeeded on windows-2022.
+          CC: gcc
         run: |
           $ErrorActionPreference = 'Stop'
           go install fyne.io/tools/cmd/fyne@v1.7.2
@@ -143,13 +124,60 @@ jobs:
           Pop-Location
       - uses: actions/upload-artifact@v4
         with:
-          name: desktop-windows-${{ matrix.arch }}
-          path: dist/telegram-download-bot-desktop-windows-${{ matrix.arch }}.zip
+          name: desktop-windows-amd64
+          path: dist/telegram-download-bot-desktop-windows-amd64.zip
+          if-no-files-found: error
+
+  windows-arm64:
+    name: Windows arm64 package
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Package
+        shell: pwsh
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          ARCH: arm64
+          # The ARM runner's bundled GCC is the working MinGW toolchain.
+          CC: gcc
+        run: |
+          $ErrorActionPreference = 'Stop'
+          go mod download fyne.io/tools@v1.7.2
+          $toolsDir = Join-Path (go env GOMODCACHE) 'fyne.io\tools@v1.7.2'
+          Get-ChildItem -Path $toolsDir -Recurse -Force | ForEach-Object { $_.IsReadOnly = $false }
+          $buildFile = Join-Path $toolsDir 'cmd\fyne\internal\commands\build.go'
+          $source = Get-Content -Path $buildFile -Raw
+          $unsupportedFlag = 'cflags = append(cflags, "-mbranch-protection=bti+pac-ret")'
+          if (-not $source.Contains($unsupportedFlag)) { throw "Expected Fyne ARM64 compiler flag was not found" }
+          # The Windows ARM64 MinGW GCC on this runner does not implement this
+          # Linux/ARM hardening flag. Removing only this flag retains native linking.
+          $source = $source.Replace($unsupportedFlag, '// Windows ARM64 MinGW GCC: no -mbranch-protection support')
+          Set-Content -Path $buildFile -Value $source -NoNewline
+          Push-Location $toolsDir
+          go install ./cmd/fyne
+          if ($LASTEXITCODE -ne 0) { throw "Fyne tool install failed with exit code $LASTEXITCODE" }
+          Pop-Location
+          $version = $env:TAG_NAME.TrimStart('v')
+          $env:GOFLAGS = "-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$version"
+          Push-Location desktop
+          fyne package --target windows --name TelegramDownloadBotDesktop --app-id com.connectingeverycorner.telegramdownloadbot --app-version $version --icon ../assets/tdl-desktop-icon.png --release
+          if ($LASTEXITCODE -ne 0) { throw "Fyne package failed with exit code $LASTEXITCODE" }
+          New-Item -ItemType Directory -Force ../dist | Out-Null
+          Compress-Archive -Path TelegramDownloadBotDesktop.exe -DestinationPath "../dist/telegram-download-bot-desktop-windows-$env:ARCH.zip"
+          Pop-Location
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows-arm64
+          path: dist/telegram-download-bot-desktop-windows-arm64.zip
           if-no-files-found: error
 
   release:
     name: Publish GitHub Release
-    needs: [linux, macos, windows]
+    needs: [linux, macos, windows-amd64, windows-arm64]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
