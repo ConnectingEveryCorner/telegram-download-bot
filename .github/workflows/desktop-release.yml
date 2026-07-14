@@ -128,40 +128,33 @@ jobs:
           path: dist/telegram-download-bot-desktop-windows-amd64.zip
           if-no-files-found: error
 
-  windows-arm64:
-    name: Windows arm64 package
-    runs-on: windows-11-arm
+  windows-386:
+    name: Windows 386 package
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
+      - name: Install 32-bit MinGW toolchain
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: true
+          install: mingw-w64-i686-toolchain
       - name: Package
         shell: pwsh
         env:
           TAG_NAME: ${{ inputs.tag_name }}
-          ARCH: arm64
-          # The ARM runner's bundled GCC is the working MinGW toolchain.
-          CC: gcc
+          ARCH: 386
         run: |
           $ErrorActionPreference = 'Stop'
-          go mod download fyne.io/tools@v1.7.2
-          $toolsDir = Join-Path (go env GOMODCACHE) 'fyne.io\tools@v1.7.2'
-          Get-ChildItem -Path $toolsDir -File -Recurse -Force | ForEach-Object { $_.IsReadOnly = $false }
-          $buildFile = Join-Path $toolsDir 'cmd\fyne\internal\commands\build.go'
-          $source = Get-Content -Path $buildFile -Raw
-          $unsupportedFlag = 'cflags = append(cflags, "-mbranch-protection=bti+pac-ret")'
-          if (-not $source.Contains($unsupportedFlag)) { throw "Expected Fyne ARM64 compiler flag was not found" }
-          # The Windows ARM64 MinGW GCC on this runner does not implement this
-          # Linux/ARM hardening flag. Removing only this flag retains native linking.
-          $source = $source.Replace($unsupportedFlag, '// Windows ARM64 MinGW GCC: no -mbranch-protection support')
-          Set-Content -Path $buildFile -Value $source -NoNewline
-          Push-Location $toolsDir
-          go install ./cmd/fyne
-          if ($LASTEXITCODE -ne 0) { throw "Fyne tool install failed with exit code $LASTEXITCODE" }
-          Pop-Location
+          $env:CC = 'C:\msys64\mingw32\bin\gcc.exe'
+          if (-not (Test-Path $env:CC)) { throw "32-bit MinGW GCC was not installed: $env:CC" }
+          go install fyne.io/tools/cmd/fyne@v1.7.2
           $version = $env:TAG_NAME.TrimStart('v')
+          $env:GOARCH = '386'
           $env:GOFLAGS = "-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$version"
           Push-Location desktop
           fyne package --target windows --name TelegramDownloadBotDesktop --app-id com.connectingeverycorner.telegramdownloadbot --app-version $version --icon ../assets/tdl-desktop-icon.png --release
@@ -171,13 +164,13 @@ jobs:
           Pop-Location
       - uses: actions/upload-artifact@v4
         with:
-          name: desktop-windows-arm64
-          path: dist/telegram-download-bot-desktop-windows-arm64.zip
+          name: desktop-windows-386
+          path: dist/telegram-download-bot-desktop-windows-386.zip
           if-no-files-found: error
 
   release:
     name: Publish GitHub Release
-    needs: [linux, macos, windows-amd64, windows-arm64]
+    needs: [linux, macos, windows-amd64, windows-386]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
