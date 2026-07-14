@@ -8,6 +8,14 @@
 
 下载地址：[GitHub Releases](https://github.com/ConnectingEveryCorner/telegram-download-bot/releases)
 
+### macOS 首次打开
+
+当前 macOS 应用未进行 Apple 签名与公证，若系统提示应用已损坏，请将应用移动到“应用程序”目录后在终端执行
+
+```bash
+xattr -cr "/Applications/TelegramDownloadBotDesktop.app"
+```
+
 telegram-download-bot 是一个基于 [tdl](https://github.com/iyear/tdl) 实现的 Telegram MTProto 下载回传机器人 用户把 Telegram 消息链接发给机器人后，机器人会使用已登录的 Telegram 用户账号下载原消息内容，再通过机器人把文本、图片、视频、文件或相册回传给当前聊天
 
 ![Usage demo](./docs/images/demo.gif)

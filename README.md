@@ -8,6 +8,14 @@ English | [中文说明](README.zh.md)
 
 Download: [GitHub Releases](https://github.com/ConnectingEveryCorner/telegram-download-bot/releases)
 
+### First launch on macOS
+
+The macOS app is not currently signed or notarized by Apple. If macOS says that the app is damaged, move it to Applications and run:
+
+```bash
+xattr -cr "/Applications/TelegramDownloadBotDesktop.app"
+```
+
 telegram-download-bot is a Telegram MTProto download-and-send-back bot built on top of [tdl](https://github.com/iyear/tdl). Send a Telegram message link to the bot, and it will download the original message content with a logged-in Telegram user account, then send text, photos, videos, documents, or albums back through the bot.
 
 ![Usage demo](./docs/images/demo.gif)
