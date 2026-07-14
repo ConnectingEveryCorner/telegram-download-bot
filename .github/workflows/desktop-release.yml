@@ -104,12 +104,14 @@ jobs:
           - runner: windows-2022
             arch: amd64
             compiler_path: 'C:\msys64\mingw64\bin'
-            cc: gcc
+            cc: 'C:\msys64\mingw64\bin\gcc.exe'
             cgo_cflags: ''
           - runner: windows-11-arm
             arch: arm64
             compiler_path: 'C:\msys64\clangarm64\bin'
-            cc: clang
+            # The system clang links with lld-link and cannot locate the
+            # MSYS2 MinGW ARM64 libraries. Use MSYS2's clang driver directly.
+            cc: 'C:\msys64\clangarm64\bin\clang.exe'
             cgo_cflags: -DWINBOOL=BOOL
     runs-on: ${{ matrix.runner }}
     steps:
