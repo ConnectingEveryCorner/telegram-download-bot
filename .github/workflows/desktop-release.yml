@@ -128,52 +128,9 @@ jobs:
           path: dist/telegram-download-bot-desktop-windows-amd64.zip
           if-no-files-found: error
 
-  windows-386:
-    name: Windows 386 package
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          cache: true
-      - name: Install 32-bit MinGW toolchain
-        id: msys2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW32
-          update: true
-          install: mingw-w64-i686-toolchain
-      - name: Package
-        shell: pwsh
-        env:
-          TAG_NAME: ${{ inputs.tag_name }}
-          ARCH: 386
-          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ([string]::IsNullOrWhiteSpace($env:MSYS2_LOCATION)) { throw 'MSYS2 setup did not return its installation directory' }
-          $env:CC = Join-Path $env:MSYS2_LOCATION 'mingw32\bin\gcc.exe'
-          if (-not (Test-Path $env:CC)) { throw "32-bit MinGW GCC was not installed: $env:CC" }
-          go install fyne.io/tools/cmd/fyne@v1.7.2
-          $version = $env:TAG_NAME.TrimStart('v')
-          $env:GOARCH = '386'
-          $env:GOFLAGS = "-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$version"
-          Push-Location desktop
-          fyne package --target windows --name TelegramDownloadBotDesktop --app-id com.connectingeverycorner.telegramdownloadbot --app-version $version --icon ../assets/tdl-desktop-icon.png --release
-          if ($LASTEXITCODE -ne 0) { throw "Fyne package failed with exit code $LASTEXITCODE" }
-          New-Item -ItemType Directory -Force ../dist | Out-Null
-          Compress-Archive -Path TelegramDownloadBotDesktop.exe -DestinationPath "../dist/telegram-download-bot-desktop-windows-$env:ARCH.zip"
-          Pop-Location
-      - uses: actions/upload-artifact@v4
-        with:
-          name: desktop-windows-386
-          path: dist/telegram-download-bot-desktop-windows-386.zip
-          if-no-files-found: error
-
   release:
     name: Publish GitHub Release
-    needs: [linux, macos, windows-amd64, windows-386]
+    needs: [linux, macos, windows-amd64]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
