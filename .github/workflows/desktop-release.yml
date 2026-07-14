@@ -138,6 +138,7 @@ jobs:
           go-version-file: go.mod
           cache: true
       - name: Install 32-bit MinGW toolchain
+        id: msys2
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW32
@@ -148,9 +149,11 @@ jobs:
         env:
           TAG_NAME: ${{ inputs.tag_name }}
           ARCH: 386
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $env:CC = 'C:\msys64\mingw32\bin\gcc.exe'
+          if ([string]::IsNullOrWhiteSpace($env:MSYS2_LOCATION)) { throw 'MSYS2 setup did not return its installation directory' }
+          $env:CC = Join-Path $env:MSYS2_LOCATION 'mingw32\bin\gcc.exe'
           if (-not (Test-Path $env:CC)) { throw "32-bit MinGW GCC was not installed: $env:CC" }
           go install fyne.io/tools/cmd/fyne@v1.7.2
           $version = $env:TAG_NAME.TrimStart('v')
