@@ -4,7 +4,7 @@
 
 ## 桌面端
 
-![桌面端](./docs/images/desktop.png)
+![桌面端](./docs/images/desktop_zh.png)
 
 下载地址：[GitHub Releases](https://github.com/ConnectingEveryCorner/telegram-download-bot/releases)
 

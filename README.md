@@ -4,7 +4,7 @@ English | [中文说明](README.zh.md)
 
 ## Desktop app
 
-![Desktop app](./docs/images/desktop.png)
+![Desktop app](./docs/images/desktop_en.png)
 
 Download: [GitHub Releases](https://github.com/ConnectingEveryCorner/telegram-download-bot/releases)
 
