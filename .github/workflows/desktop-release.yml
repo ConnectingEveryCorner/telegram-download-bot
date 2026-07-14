@@ -36,7 +36,13 @@ jobs:
           TAG_NAME: ${{ inputs.tag_name }}
           ARCH: ${{ matrix.arch }}
         run: |
-          go install fyne.io/tools/cmd/fyne@v1.7.2
+          go mod download fyne.io/tools@v1.7.2
+          TOOLS_DIR="$(go env GOMODCACHE)/fyne.io/tools@v1.7.2"
+          chmod -R u+w "$TOOLS_DIR"
+          # Fyne's hard-coded _FORTIFY_SOURCE conflicts with the current
+          # Ubuntu/Go toolchain. Keep stack protection but remove that macro.
+          sed -i 's/-D_FORTIFY_SOURCE=3 //' "$TOOLS_DIR/cmd/fyne/internal/commands/build.go"
+          (cd "$TOOLS_DIR" && go install ./cmd/fyne)
           VERSION="${TAG_NAME#v}"
           export GOFLAGS="-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$VERSION"
           # The hosted Ubuntu image may predefine these flags. Fyne supplies
@@ -99,10 +105,12 @@ jobs:
             arch: amd64
             compiler_path: 'C:\msys64\mingw64\bin'
             cc: gcc
+            cgo_cflags: ''
           - runner: windows-11-arm
             arch: arm64
             compiler_path: 'C:\msys64\clangarm64\bin'
             cc: clang
+            cgo_cflags: -DWINBOOL=BOOL
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
@@ -119,6 +127,7 @@ jobs:
           TAG_NAME: ${{ inputs.tag_name }}
           ARCH: ${{ matrix.arch }}
           CC: ${{ matrix.cc }}
+          CGO_CFLAGS: ${{ matrix.cgo_cflags }}
         run: |
           $ErrorActionPreference = 'Stop'
           go install fyne.io/tools/cmd/fyne@v1.7.2
