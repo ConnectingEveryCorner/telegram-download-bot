@@ -65,5 +65,5 @@ start: |-
   主管理员查看当前所有授权状态
 
   登录后，直接给我发 Telegram 消息链接，例如:
-  https://t.me/telegram/193
+  https://telegram.me/telegram/193
 help: "https://github.com/ConnectingEveryCorner/telegram-download-bot"

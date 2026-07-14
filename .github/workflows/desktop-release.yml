@@ -1,0 +1,150 @@
+name: desktop-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag, e.g. v1.0.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    name: Linux ${{ matrix.arch }} package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            arch: amd64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install Fyne build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev xorg-dev libxkbcommon-dev
+      - name: Package
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          go install fyne.io/tools/cmd/fyne@v1.7.2
+          VERSION="${TAG_NAME#v}"
+          export GOFLAGS="-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$VERSION"
+          cd desktop
+          fyne package --target linux --name TelegramDownloadBotDesktop --app-id com.connectingeverycorner.telegramdownloadbot --app-version "$VERSION" --icon ../assets/tdl-desktop-icon.png --release
+          mkdir -p ../dist
+          mv TelegramDownloadBotDesktop.tar.gz "../dist/telegram-download-bot-desktop-linux-$ARCH.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux-${{ matrix.arch }}
+          path: dist/telegram-download-bot-desktop-linux-${{ matrix.arch }}.tar.gz
+          if-no-files-found: error
+
+  macos:
+    name: macOS ${{ matrix.arch }} package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            arch: arm64
+          - runner: macos-15-intel
+            arch: amd64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Package app
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          go install fyne.io/tools/cmd/fyne@v1.7.2
+          VERSION="${TAG_NAME#v}"
+          export GOFLAGS="-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$VERSION"
+          cd desktop
+          fyne package --target darwin --name TelegramDownloadBotDesktop --app-id com.connectingeverycorner.telegramdownloadbot --app-version "$VERSION" --icon ../assets/tdl-desktop-icon.png --release
+          mkdir -p ../dist
+          ditto -c -k --sequesterRsrc --keepParent TelegramDownloadBotDesktop.app "../dist/telegram-download-bot-desktop-macos-$ARCH.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-macos-${{ matrix.arch }}
+          path: dist/telegram-download-bot-desktop-macos-${{ matrix.arch }}.zip
+          if-no-files-found: error
+
+  windows:
+    name: Windows ${{ matrix.arch }} package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            arch: amd64
+            compiler_path: 'C:\msys64\mingw64\bin'
+          - runner: windows-11-arm
+            arch: arm64
+            compiler_path: 'C:\msys64\clangarm64\bin'
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Enable native C compiler
+        shell: pwsh
+        run: Add-Content $env:GITHUB_PATH '${{ matrix.compiler_path }}'
+      - name: Package
+        shell: pwsh
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          go install fyne.io/tools/cmd/fyne@v1.7.2
+          $version = $env:TAG_NAME.TrimStart('v')
+          $env:GOFLAGS = "-ldflags=-X=github.com/iyear/tdl/app/desktop.Version=$version"
+          Push-Location desktop
+          fyne package --target windows --name TelegramDownloadBotDesktop --app-id com.connectingeverycorner.telegramdownloadbot --app-version $version --icon ../assets/tdl-desktop-icon.png --release
+          New-Item -ItemType Directory -Force ../dist | Out-Null
+          Compress-Archive -Path TelegramDownloadBotDesktop.exe -DestinationPath "../dist/telegram-download-bot-desktop-windows-$env:ARCH.zip"
+          Pop-Location
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows-${{ matrix.arch }}
+          path: dist/telegram-download-bot-desktop-windows-${{ matrix.arch }}.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: [linux, macos, windows]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" dist/* --clobber
+          else
+            gh release create "$TAG_NAME" dist/* --target "$GITHUB_SHA" --title "Telegram Download Bot Desktop $TAG_NAME" --generate-notes
+          fi

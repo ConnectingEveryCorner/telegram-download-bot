@@ -2,6 +2,12 @@
 
 [English](README.md) | 中文说明
 
+## 桌面端
+
+![桌面端](./docs/images/desktop.png)
+
+下载地址：[GitHub Releases](https://github.com/ConnectingEveryCorner/telegram-download-bot/releases)
+
 telegram-download-bot 是一个基于 [tdl](https://github.com/iyear/tdl) 实现的 Telegram MTProto 下载回传机器人 用户把 Telegram 消息链接发给机器人后，机器人会使用已登录的 Telegram 用户账号下载原消息内容，再通过机器人把文本、图片、视频、文件或相册回传给当前聊天
 
 ![Usage demo](./docs/images/demo.gif)
@@ -101,9 +107,10 @@ docker compose up -d
 
 ## 联系方式 💬
 
-- 🤖 机器人: [@ConnectingEveryCornerCNBot](https://t.me/ConnectingEveryCornerCNBot)
-- 👤 Telegram: [@ConnectingEveryCorner](https://t.me/ConnectingEveryCorner)
-- 📢 频道: [CECCNBoard](https://t.me/CECCNBoard)
+- 🌐 官网: [ceckit.com](https://ceckit.com/)
+- 🤖 机器人: [@ConnectingEveryCornerCNBot](https://telegram.me/ConnectingEveryCornerCNBot)
+- 👤 Telegram: [@ConnectingEveryCorner](https://telegram.me/ConnectingEveryCorner)
+- 📢 频道: [CECCNBoard](https://telegram.me/CECCNBoard)
 
 ## 许可证
 

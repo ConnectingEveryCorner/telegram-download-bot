@@ -2,6 +2,12 @@
 
 English | [中文说明](README.zh.md)
 
+## Desktop app
+
+![Desktop app](./docs/images/desktop.png)
+
+Download: [GitHub Releases](https://github.com/ConnectingEveryCorner/telegram-download-bot/releases)
+
 telegram-download-bot is a Telegram MTProto download-and-send-back bot built on top of [tdl](https://github.com/iyear/tdl). Send a Telegram message link to the bot, and it will download the original message content with a logged-in Telegram user account, then send text, photos, videos, documents, or albums back through the bot.
 
 ![Usage demo](./docs/images/demo.gif)
@@ -99,9 +105,10 @@ Only the primary admin configured by `auth.admin-chat-id` can run `/login`. Once
 
 ## Contact 💬
 
-- 🤖 Bot: [@ConnectingEveryCornerBot](https://t.me/ConnectingEveryCornerBot)
-- 👤 Telegram: [@ConnectingEveryCorner](https://t.me/ConnectingEveryCorner)
-- 📢 Channel: [CECBoard](https://t.me/CECBoard)
+- 🌐 Website: [ceckit.com](https://ceckit.com/)
+- 🤖 Bot: [@ConnectingEveryCornerBot](https://telegram.me/ConnectingEveryCornerBot)
+- 👤 Telegram: [@ConnectingEveryCorner](https://telegram.me/ConnectingEveryCorner)
+- 📢 Channel: [CECBoard](https://telegram.me/CECBoard)
 
 ## License
 

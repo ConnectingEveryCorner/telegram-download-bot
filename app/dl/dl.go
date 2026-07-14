@@ -45,6 +45,18 @@ type Options struct {
 	// serve
 	Serve bool
 	Port  int
+
+	// OnProgress receives aggregate progress for this download run. It is called
+	// from downloader workers and must return quickly.
+	OnProgress func(ProgressUpdate)
+}
+
+// ProgressUpdate is an aggregate snapshot of a download run.
+type ProgressUpdate struct {
+	Downloaded int64
+	Total      int64
+	FilesDone  int
+	FilesTotal int
 }
 
 type parser struct {

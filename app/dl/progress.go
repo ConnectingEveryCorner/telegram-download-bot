@@ -26,20 +26,32 @@ type progress struct {
 	opts     Options
 
 	it *iter
+
+	mu         sync.Mutex
+	downloaded map[int]int64
+	totals     map[int]int64
+	filesDone  int
 }
 
 func newProgress(p pw.Writer, it *iter, opts Options) *progress {
 	return &progress{
-		pw:       p,
-		trackers: &sync.Map{},
-		opts:     opts,
-		it:       it,
+		pw:         p,
+		trackers:   &sync.Map{},
+		opts:       opts,
+		it:         it,
+		downloaded: make(map[int]int64),
+		totals:     make(map[int]int64),
 	}
 }
 
 func (p *progress) OnAdd(elem downloader.Elem) {
 	tracker := prog.AppendTracker(p.pw, utils.Byte.FormatBinaryBytes, p.processMessage(elem), elem.File().Size())
-	p.trackers.Store(elem.(*iterElem).id, tracker)
+	e := elem.(*iterElem)
+	p.trackers.Store(e.id, tracker)
+	p.mu.Lock()
+	p.totals[e.id] = elem.File().Size()
+	p.mu.Unlock()
+	p.report()
 }
 
 func (p *progress) OnDownload(elem downloader.Elem, state downloader.ProgressState) {
@@ -51,6 +63,12 @@ func (p *progress) OnDownload(elem downloader.Elem, state downloader.ProgressSta
 	t := tracker.(*pw.Tracker)
 	t.UpdateTotal(state.Total)
 	t.SetValue(state.Downloaded)
+
+	p.mu.Lock()
+	p.downloaded[elem.(*iterElem).id] = state.Downloaded
+	p.totals[elem.(*iterElem).id] = state.Total
+	p.mu.Unlock()
+	p.report()
 }
 
 func (p *progress) OnDone(elem downloader.Elem, err error) {
@@ -76,11 +94,30 @@ func (p *progress) OnDone(elem downloader.Elem, err error) {
 	}
 
 	p.it.Finish(e.logicalPos)
+	p.mu.Lock()
+	p.downloaded[e.id] = e.File().Size()
+	p.filesDone++
+	p.mu.Unlock()
+	p.report()
 
 	if err := p.donePost(e); err != nil {
 		p.fail(t, elem, errors.Wrap(err, "post file"))
 		return
 	}
+}
+
+func (p *progress) report() {
+	if p.opts.OnProgress == nil {
+		return
+	}
+	p.mu.Lock()
+	update := ProgressUpdate{FilesDone: p.filesDone, FilesTotal: p.it.Total()}
+	for id, total := range p.totals {
+		update.Total += total
+		update.Downloaded += p.downloaded[id]
+	}
+	p.mu.Unlock()
+	p.opts.OnProgress(update)
 }
 
 func (p *progress) donePost(elem *iterElem) error {

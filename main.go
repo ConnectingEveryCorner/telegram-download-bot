@@ -22,7 +22,7 @@ func main() {
 
 	loadConfig()
 
-	if token := strings.TrimSpace(viper.GetString("bot.token")); token != "" {
+	if token := strings.TrimSpace(viper.GetString("bot.token")); token != "" && !isDesktopCommand(os.Args[1:]) {
 		if err := tgbot.Run(ctx, tgbot.Options{
 			Token:      token,
 			Debug:      viper.GetBool("bot.debug"),
@@ -50,6 +50,15 @@ func main() {
 		color.Red("Error: %+v", err)
 		os.Exit(1)
 	}
+}
+
+func isDesktopCommand(args []string) bool {
+	for _, arg := range args {
+		if arg == "gui" || arg == "desktop" {
+			return true
+		}
+	}
+	return false
 }
 
 func loadConfig() {

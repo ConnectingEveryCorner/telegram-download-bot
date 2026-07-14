@@ -65,5 +65,5 @@ start: |-
   Primary admin views the current authorization status
 
   After login, send me a Telegram message link directly, for example:
-  https://t.me/telegram/193
+  https://telegram.me/telegram/193
 help: "https://github.com/ConnectingEveryCorner/telegram-download-bot"
